@@ -1,0 +1,24 @@
+{
+    "manifest_version": 3,
+    "name": "Tab Viewer",
+    "description": "",
+    "version": "1.0",
+    "action": {
+      "default_title": "Click to open side panel"
+    },
+    "side_panel": {
+      "default_path": "index.html"
+    },
+    "permissions": [
+      "scripting",
+      "activeTab",
+      "sidePanel",
+      "tabs",
+      "activeTab"
+    ],
+    "background": {
+      "service_worker": "service-worker.js"
+    },
+    "host_permissions": ["http://*/*", "https://*/*"]
+  }
+  
