@@ -1,6 +1,14 @@
 import { useState } from "react"
 
-function TabSearch() {
+function SearchView({ query }) {
+    return (
+        <div className="resultsView">
+            
+        </div>
+    )
+}
+
+function TabSearch({ windows }) {
     const [query, setQuery] = useState("")
 
     // function onSubmit(e) {
@@ -13,14 +21,12 @@ function TabSearch() {
     // learn about forms and hooks
     return (
         <>
-            <form>
-                <input value={query} onChange={e => setQuery(e.target.value)} type="search" placeholder="Search for tabs..."/>
-                <button type="submit">Search</button>
-            </form>
-            
-            <div className="searchResults">
+            {/* <form> */}
+            <input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search for tabs..."/>
+                {/* <button type="submit">Search</button> */}
+            {/* </form> */}
 
-            </div>
+            {query.length > 0 && <SearchView/>}
         </>
     )
 }

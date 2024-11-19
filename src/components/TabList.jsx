@@ -10,7 +10,7 @@ function TabList() {
 
     return (
         <>
-            <TabSearch/>
+            <TabSearch windows={windows}/>
             <div className="tabList">
                 <div className="windowList">
                     {windows.map(window => <Window key={window.id}></Window>)}
