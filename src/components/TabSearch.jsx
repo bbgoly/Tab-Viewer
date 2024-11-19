@@ -1,16 +1,4 @@
-import { useState } from "react"
-
-function SearchView({ query }) {
-    return (
-        <div className="resultsView">
-            
-        </div>
-    )
-}
-
-function TabSearch({ windows }) {
-    const [query, setQuery] = useState("")
-
+function TabSearch({ query, setQuery }) {
     // function onSubmit(e) {
     //     e.preventDefault()
     //     if (searchRef.current.value !== "") {
@@ -22,11 +10,9 @@ function TabSearch({ windows }) {
     return (
         <>
             {/* <form> */}
-            <input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search for tabs..."/>
+            <input type="text" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search for tabs..." autoFocus/>
                 {/* <button type="submit">Search</button> */}
             {/* </form> */}
-
-            {query.length > 0 && <SearchView/>}
         </>
     )
 }

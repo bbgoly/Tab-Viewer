@@ -1,16 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"
 
 import Window from "@/components/Window"
-import TabSearch from "@/components/TabSearch";
 
-function TabList() {
+function TabList({ query }) {
     const [windows, setWindows] = useState([])
 
-    useEffect(() => chrome.runtime.sendMessage({ type: "GET_TABS" }, response => setWindows(response)), [])
+	useEffect(() => chrome.runtime.sendMessage({ type: "GET_TABS" }, response => setWindows(response)), [])
 
     return (
         <>
-            <TabSearch windows={windows}/>
             <div className="tabList">
                 <div className="windowList">
                     {windows.map(window => <Window key={window.id}></Window>)}
