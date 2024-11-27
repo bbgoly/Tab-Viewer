@@ -23,7 +23,7 @@ function TabList() {
 		}));
 	}, [windows, debouncedQuery]);
 
-	useEffect(() => chrome.runtime.sendMessage({ type: "GET_TABS" }, response => setWindows(response)), []);
+	useEffect(() => chrome.runtime.sendMessage({ type: "GET_ALL_WINDOWS" }, response => setWindows(response)), []);
 
 	return (
 		<>

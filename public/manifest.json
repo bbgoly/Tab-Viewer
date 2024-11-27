@@ -13,9 +13,9 @@
       "scripting",
       "activeTab",
       "sidePanel",
-      "tabs",
-      "activeTab"
+      "tabs"
     ],
+    "incognito": "spanning",
     "background": {
       "service_worker": "service-worker.js"
     },
