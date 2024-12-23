@@ -19,6 +19,12 @@
     "background": {
       "service_worker": "service-worker.js"
     },
+    "commands": {
+      "_execute_action": {
+        "suggested_key": "Ctrl+Shift+E",
+        "description": "Opens the Tab Viewer extension"
+      }
+    },
     "host_permissions": ["http://*/*", "https://*/*"]
   }
   

@@ -23,7 +23,13 @@ function TabList() {
 		}));
 	}, [windows, debouncedQuery]);
 
-	useEffect(() => chrome.runtime.sendMessage({ type: "GET_ALL_WINDOWS" }, response => setWindows(response)), []);
+	useEffect(() => {
+		chrome.runtime.onMessage.addListener(message => {
+			console.log("received: ", message);
+		});
+
+		chrome.runtime.sendMessage({ type: "GET_ALL_WINDOWS" }, response => setWindows(response));
+	}, []);
 
 	return (
 		<>
@@ -32,7 +38,7 @@ function TabList() {
 			<div className="tabList">
 				<div className="windowList">
 					{queriedWindows.map(window => (
-						<Window key={window.id} windowData={window} />
+						<Window key={window.id} window={window} />
 					))}
 				</div>
 			</div>
