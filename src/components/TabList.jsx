@@ -6,15 +6,17 @@ import TabSearch from "./TabSearch";
 import useDebounce from "@/hooks/useDebounce";
 
 function TabList() {
-	const [windows, setWindows] = useState([]);
+	// use hashmap instead of array to perform two extra O(n) operations when
+	// constructing the object in favor of instead of many O(n^2) operations when updating the array
+	const [windows, setWindows] = useState({});
 
 	const [query, setQuery] = useState("");
 	const debouncedQuery = useDebounce(query);
 
 	const queriedWindows = useMemo(() => {
-		return windows.map(window => ({
+		return Object.values(windows).map(window => ({
 			...window,
-			tabs: window.tabs.filter(tab => {
+			tabs: Object.values(window.tabs).filter(tab => {
 				if (!debouncedQuery) return true;
 
 				const query = debouncedQuery.toLowerCase();
@@ -25,7 +27,23 @@ function TabList() {
 
 	useEffect(() => {
 		chrome.runtime.onMessage.addListener(message => {
-			console.log("received: ", message);
+			if (message.type === "TAB_UPDATE") {
+				setWindows(prevWindows => {
+					const updatedWindows = { ...prevWindows };
+					if (updatedWindows[message.tab.windowId]) {
+						updatedWindows[message.tab.windowId].tabs[message.tab.id] = message.tab;
+					}
+					return updatedWindows;
+				});
+			} else if (message.type === "TAB_DELETE") {
+				setWindows(prevWindows => {
+					const updatedWindows = { ...prevWindows };
+					if (updatedWindows[message.windowId]) {
+						delete updatedWindows[message.windowId].tabs[message.tabId];
+					}
+					return updatedWindows;
+				});
+			}
 		});
 
 		chrome.runtime.sendMessage({ type: "GET_ALL_WINDOWS" }, response => setWindows(response));
