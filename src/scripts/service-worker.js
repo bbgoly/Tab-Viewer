@@ -12,12 +12,19 @@ function buildTabData(tab) {
 }
 
 function buildWindowData(window) {
+	let activeTabId = -1;
 	return {
 		id: window.id,
-		tabs: window.tabs.reduce((tabs, tab) => {
-			tabs[tab.id] = buildTabData(tab);
+		tabs: (window.tabs ?? []).reduce((tabs, tab) => {
+			const data = buildTabData(tab);
+			tabs[tab.id] = data;
+
+			if (data.active) {
+				activeTabId = data.id;
+			}
 			return tabs;
 		}, {}),
+		activeTabId,
 		incognito: window.incognito,
 		focused: window.focused,
 	};
@@ -26,11 +33,12 @@ function buildWindowData(window) {
 // check if this sends over a network
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	if (message.type === "GET_ALL_WINDOWS") {
-		chrome.windows.getAll({ populate: true }, windows => {
+		chrome.windows.getAll({ populate: true, windowTypes: ["normal"] }, windows => {
 			const windowsData = windows.reduce((windowsAcc, window) => {
 				windowsAcc[window.id] = buildWindowData(window);
 				return windowsAcc;
 			}, {});
+			console.log("windows data:", windowsData);
 			sendResponse(windowsData);
 		});
 		return true;
@@ -42,6 +50,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
  * tab.windowId	 ✅
  * will onUpdated also fire if onRemoved fires: ❌
  * maybe use only onUpdated instead of onCreated: ✅
+ * maybe only care about window focus change during popout mode
  * check if onDetached will not fire so long as user detaches it and continues moving it (i.e., they might attach it to another window)
  * maybe debounce the onDetached if possible lol...
  * figure out a way to make service worker know when user creates a new tab/window or if the extension created a new tab/window
@@ -57,6 +66,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // 	});
 // });
 
+chrome.tabs.onActivated.addListener(activeInfo => {
+	console.log("from tabs active: ", activeInfo);
+	chrome.runtime.getContexts({ contextTypes: ["POPUP", "SIDE_PANEL"] }).then(contexts => {
+		console.log("found context? ", contexts.length);
+		if (contexts.length > 0) {
+			chrome.runtime.sendMessage({ type: "ACTIVE_TAB_CHANGED", tabId: activeInfo.tabId, windowId: activeInfo.windowId });
+		}
+	});
+});
+
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 	console.log("from tabs updated: ", tabId, changeInfo, tab);
 	if (tab.title !== tab.url && tab.favIconUrl && (changeInfo.status === "complete" || changeInfo.favIconUrl || changeInfo.discarded)) {
@@ -64,7 +83,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 			console.log("found context? ", contexts.length);
 			if (contexts.length > 0) {
 				console.log("sending info:", changeInfo, buildTabData(tab));
-				chrome.runtime.sendMessage({ type: "TAB_UPDATE", tabId, changeInfo, tab: buildTabData(tab) });
+				chrome.runtime.sendMessage({ type: "TAB_UPDATED", tabId, changeInfo, tab: buildTabData(tab) });
 			}
 		});
 	}
@@ -76,16 +95,51 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
 		chrome.runtime.getContexts({ contextTypes: ["POPUP", "SIDE_PANEL"] }).then(contexts => {
 			console.log("found context? ", contexts.length);
 			if (contexts.length > 0) {
-				chrome.runtime.sendMessage({ type: "TAB_DELETE", tabId, windowId: removeInfo.windowId });
+				chrome.runtime.sendMessage({ type: "TAB_DELETED", tabId, windowId: removeInfo.windowId });
 			}
 		});
 	}
 });
 
-chrome.windows.onCreated.addListener(window => console.log("from window created: ", window), { windowTypes: ["normal"] });
+chrome.windows.onCreated.addListener(
+	window => {
+		console.log("from window created: ", window);
+		chrome.runtime.getContexts({ contextTypes: ["POPUP", "SIDE_PANEL"] }).then(contexts => {
+			console.log("found context? ", contexts.length);
+			if (contexts.length > 0) {
+				chrome.runtime.sendMessage({ type: "WINDOW_CREATED", window: buildWindowData(window) });
+			}
+		});
+	},
+	{ windowTypes: ["normal"] }
+);
 
-chrome.windows.onRemoved.addListener(windowId => console.log("from window removed: ", windowId), { windowTypes: ["normal"] });
+// TODO: windows.onRemoved never fires for some reason, workaround could be to just use tabs.onRemoved with isWindowClosing to create a special case since that triggers for each tab being closed
+chrome.windows.onRemoved.addListener(
+	windowId => {
+		console.log("from window removed: ", windowId);
+		chrome.runtime.getContexts({ contextTypes: ["POPUP", "SIDE_PANEL"] }).then(contexts => {
+			console.log("found context? ", contexts.length);
+			if (contexts.length > 0) {
+				chrome.runtime.sendMessage({ type: "WINDOW_DELETED", windowId });
+			}
+		});
+	},
+	{ windowTypes: ["normal"] }
+);
 
-chrome.windows.onFocusChanged.addListener(windowId => console.log("from window focus changed: ", windowId), { windowTypes: ["normal"] });
+// TODO: If you decide to create a popout, implement this for it
+// chrome.windows.onFocusChanged.addListener(
+// 	windowId => {
+// 		console.log("from window focus changed: ", windowId);
+// 		chrome.runtime.getContexts({ contextTypes: ["POPUP", "SIDE_PANEL"] }).then(contexts => {
+// 			console.log("found context? ", contexts.length);
+// 			if (contexts.length > 0) {
+// 				chrome.runtime.sendMessage({ type: "WINDOW_FOCUS_CHANGED", windowId });
+// 			}
+// 		});
+// 	},
+// 	{ windowTypes: ["normal"] }
+// );
 
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });

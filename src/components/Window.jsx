@@ -1,11 +1,15 @@
 import Tab from "./Tab";
 
-function Window({ window }) {
+function Window({ activeTab, window }) {
 	// TODO: Get localhost favicons working and implement switching user to tab if they click on the href (rather than it opening in a new tab)
+	// TODO: Properly design window container and tab items, color the background differently depending on whether its the active tab or an incognito tab (make the color the same as that browser's incognito background color)
 	return (
 		<div className="window-container">
-			<h2 style={{ color: window.focused ? "yellow" : "inherit", backgroundColor: window.incognito ? "grey" : "inherit" }}>
-				Window {window.id}
+			<h2
+				title={`Window Id: ${window.id}`}
+				style={{ color: window.focused ? "yellow" : "inherit", backgroundColor: window.incognito ? "grey" : "inherit" }}
+			>
+				{activeTab ? activeTab.title : `Window ${window.id}`}
 			</h2>
 			<ul>
 				{window.tabs.map(tab => (
