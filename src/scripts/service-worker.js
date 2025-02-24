@@ -78,7 +78,12 @@ chrome.tabs.onActivated.addListener(activeInfo => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 	console.log("from tabs updated: ", tabId, changeInfo, tab);
-	if (tab.title !== tab.url && tab.favIconUrl && (changeInfo.status === "complete" || changeInfo.favIconUrl || changeInfo.discarded)) {
+	if (
+		tab.title !== tab.url &&
+		tab.favIconUrl &&
+		tab.status === "complete" &&
+		(changeInfo.status === "complete" || changeInfo.title || changeInfo.favIconUrl || changeInfo.discarded)
+	) {
 		chrome.runtime.getContexts({ contextTypes: ["POPUP", "SIDE_PANEL"] }).then(contexts => {
 			console.log("found context? ", contexts.length);
 			if (contexts.length > 0) {
