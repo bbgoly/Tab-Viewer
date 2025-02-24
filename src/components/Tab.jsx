@@ -1,7 +1,7 @@
 function Tab({ tab }) {
 	const parsedUrl = new URL(tab.url);
 	return (
-		<div className="tab-container">
+		<div>
 			<p>
 				<img src={tab.icon} title={parsedUrl.host} height={16} width={16} />
 				<a href={tab.url}>

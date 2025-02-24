@@ -2,11 +2,13 @@
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite"
+
 import { resolve } from "path";
 // import webExtension from 'vite-plugin-web-extension'
 
 export default defineConfig({
-	plugins: [react()], //webExtension({ additionalInputs: ["src/scripts/content-script.jsx"], manifest: "public/manifest.json" })],
+	plugins: [react(), tailwindcss()], //webExtension({ additionalInputs: ["src/scripts/content-script.jsx"], manifest: "public/manifest.json" })],
 	build: {
 		outDir: "build",
 		rollupOptions: {

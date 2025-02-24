@@ -24,7 +24,7 @@ function App() {
 		<>
 			<h1>Tab Viewer</h1>
 			<p>
-				Tip: If you want to also view your tabs across your incognito windows, visit{" "}
+				Tip: If you want todd also view your tabs across your incognito windows, visit{" "}
 				<a href={extensionDetailsURL}>{extensionDetailsURL}</a>, then click on the &quot;Details&quot; button under &quot;Tab
 				Viewer&quot;, and enable &quot;Allow in Private&quot;
 			</p>

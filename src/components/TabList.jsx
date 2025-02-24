@@ -2,9 +2,9 @@ import { useState, useEffect, useMemo } from "react";
 
 import Window from "./Window";
 import TabSearch from "./TabSearch";
+import Accordian from "./Accordian";
 
 import useDebounce from "@/hooks/useDebounce";
-import Accordian from "./Accordian";
 
 function TabList() {
 	// use hashmap instead of array to perform two extra O(n) operations when
@@ -100,8 +100,8 @@ function TabList() {
 		<>
 			<TabSearch query={query} setQuery={setQuery} />
 
-			<div className="tabList">
-				<div className="windowList">
+			<div>
+				<div>
 					{queriedWindows.map(window => {
 						const activeTab = windows[window.id].tabs[window.activeTabId];
 						return (
@@ -109,11 +109,8 @@ function TabList() {
 								key={window.id}
 								title={
 									<h2
+										className={`${window.focused ? "text-yellow-300" : "bg-inherit"} ${window.incognito ? "bg-gray-500" : "bg-inherit"}`}
 										title={`Window Id: ${window.id}`}
-										style={{
-											color: window.focused ? "yellow" : "inherit",
-											backgroundColor: window.incognito ? "grey" : "inherit",
-										}}
 									>
 										{activeTab ? activeTab.title : `Window ${window.id}`}
 									</h2>
